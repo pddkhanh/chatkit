@@ -1,0 +1,26 @@
+{
+  "name": "chatkit",
+  "version": "1.0.0",
+  "description": "Search your own WhatsApp and Telegram history from Claude Code or Codex. Local, read-only.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "chatkit": "bin/chatkit.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node bin/chatkit.js doctor"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.114.0",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "better-sqlite3": "12.11.1",
+    "teleproto": "1.228.5",
+    "zod": "4.4.3"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true
+  }
+}

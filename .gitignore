@@ -1,0 +1,9 @@
+# Your messages, sessions and keys. Never commit these.
+data/
+.env
+whatsapp/config.json
+telegram/config.json
+whatsapp/bridge/whatsapp-bridge
+*.log
+node_modules/
+.DS_Store
