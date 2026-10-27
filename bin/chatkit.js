@@ -36,9 +36,9 @@ function ensureConfig(p) {
   if (!fs.existsSync(configPath(p))) fs.writeFileSync(configPath(p), JSON.stringify({ people: {}, embeddings: { url: null } }, null, 2) + "\n");
 }
 
-async function telegramKeys() {
+async function telegramKeys({ force = false } = {}) {
   const env = readEnv();
-  if (env.TG_API_ID && env.TG_API_HASH) return;
+  if (env.TG_API_ID && env.TG_API_HASH && !force) return;
   console.log(
     "\nTelegram needs an API id and hash of your own (free, two minutes):\n" +
       "  1. Open https://my.telegram.org and log in with your phone number.\n" +
@@ -51,8 +51,8 @@ async function telegramKeys() {
   setEnv({ TG_API_ID: id, TG_API_HASH: hash });
 }
 
-async function anthropicKey() {
-  if (process.env.ANTHROPIC_API_KEY) return true;
+async function anthropicKey({ force = false } = {}) {
+  if (process.env.ANTHROPIC_API_KEY && !force) return true;
   console.log("Labelling uses your own Anthropic API key (console.anthropic.com → API keys). It stays in this folder's .env.");
   const key = await secret("ANTHROPIC_API_KEY (hidden, blank to skip):");
   if (!key) return false;
@@ -163,12 +163,18 @@ async function status() {
     if (service.isInstalled(p)) console.log(service.tail(p, 3).replace(/^/gm, "    "));
   }
   console.log(`Meaning search: ${service.isRunning("embed") ? "running" : "off"}`);
+  const env = readEnv();
+  const set = (v) => (v ? "set" : "not set");
+  console.log(`Keys in .env: Telegram API id/hash ${set(env.TG_API_ID && env.TG_API_HASH)} · Anthropic API key ${set(env.ANTHROPIC_API_KEY)}`);
+  console.log(`Your messages are shown as: ${env.CHATKIT_OWNER_NAME || "Me"}`);
 }
 
 const HELP = `chatkit — search your own WhatsApp and Telegram history from Claude Code or Codex.
 
   chatkit setup                         the guided setup (start here)
   chatkit status                        what is linked, running, and stored
+  chatkit owner "<your name>"           how your own messages are shown (default: Me)
+  chatkit key <anthropic|telegram>      enter an API key (hidden; saved to .env)
   chatkit link <wa|tg>                  link an account (WhatsApp: QR; Telegram: phone code)
   chatkit pull [wa|tg]                  fetch new messages now (on-demand mode)
   chatkit service start|stop <wa|tg>    live updates as a background service
@@ -194,6 +200,17 @@ async function main() {
       return setup();
     case "status":
       return status();
+    case "owner": {
+      const name = positional.slice(1).join(" ").trim();
+      if (!name) throw new Error('chatkit owner "<your name>"');
+      setEnv({ CHATKIT_OWNER_NAME: name });
+      return console.log(`Your own messages will be shown as ${name}.`);
+    }
+    case "key": {
+      if (sub === "anthropic") return (await anthropicKey({ force: true })) && console.log("Saved to .env.");
+      if (sub === "telegram") return (await telegramKeys({ force: true }), console.log("Saved to .env."));
+      throw new Error("chatkit key anthropic | telegram");
+    }
     case "link": {
       const [p] = platformArg(sub, { all: false });
       ensureConfig(p);

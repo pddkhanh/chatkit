@@ -15,6 +15,22 @@ chats, reads whole conversations, and answers with the messages it found.
 
 ## Install
 
+### The easy way: let your agent do it
+
+```bash
+git clone https://github.com/pddkhanh/chatkit.git ~/chatkit
+cd ~/chatkit
+claude        # or: codex
+```
+
+Then say: **"Set up chatkit for me."** The agent follows [AGENTS.md](AGENTS.md): it
+checks your machine, runs the setup, and hands you only the steps that need you
+(scanning the WhatsApp QR code, the Telegram login code, typing an API key). It
+never asks you to paste a key or code into the chat, and it asks before anything
+that costs money.
+
+### By hand
+
 You need macOS, [Node 22+](https://nodejs.org) and, for WhatsApp, Go and the Xcode
 command line tools (`brew install node go`, `xcode-select --install`).
 
@@ -72,6 +88,8 @@ chatkit label wa --chat 1203630xxxxx@g.us --budget 5
 ```
 chatkit setup                         the guided setup
 chatkit status                        what is linked, running, and stored
+chatkit owner "<your name>"           how your own messages are shown
+chatkit key <anthropic|telegram>      enter an API key (hidden; saved to .env)
 chatkit link <wa|tg>                  link an account
 chatkit pull [wa|tg]                  fetch new messages now
 chatkit service start|stop|logs <wa|tg>   live updates in the background
